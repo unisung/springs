@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Board">
+  <!-- Use type aliases to avoid typing the full classname every time. -->
+  <typeAlias alias="Board" type="model.Board"/>
+  <resultMap id="BoardResult" class="Board">
+    <result property="id" column="id"/>
+    <result property="title" column="title"/>
+    <result property="writer" column="writer"/>
+    <result property="content" column="content"/>
+    <result property="hit" column="hit"/>
+    <result property="regDate" column="regDate"/>
+  </resultMap>
+  <!-- Select with no parameters using the result map for Account class. -->
+   <select id="getListAll" resultMap="BoardResult">
+  		select * from board order by id desc
+  </select>
+  
+  <select id="select" parameterClass="int"  resultMap="BoardResult">
+  		select * from board where id=#id#
+  </select>
+  
+  <insert id="insert" parameterClass="Board">
+  <selectKey resultClass="int" keyProperty="id" type="pre"> 
+  		select nvl(max(id),0) + 1 from board
+  <!-- selectKey를 사용하려면 DaoImple에서 insert()메소드를 사용하여야한다. -->
+  		<!-- select f_max() from dual -->
+  </selectKey>
+  	insert into board(id,writer,title,content)
+  	values(#id#,#writer#,#title#,#content#)
+  </insert>
+  
+  <update id="updateHit" parameterClass="int">
+  	update board set hit=hit+1 where id=#id#
+  </update>
+<!--   Select with no parameters using the result map for Account class. -->
+ <select id="listAll" resultMap="BoardResult">
+    <![CDATA[ select * from board order by id desc ]]>
+  </select>
+  
+  <select id="listSearch" parameterClass="java.lang.String"
+  	 resultMap="BoardResult">
+    <![CDATA[ select * from board 
+    	where title like '%'||#search#||'%' order by id desc ]]>
+  </select>
+  
+  <!-- <insert id="insert" parameterClass="Board">
+  	<selectKey type="pre" keyProperty="id" resultClass="int">
+  		select nvl(max(id),0)+1 from board
+  	</selectKey>
+	    insert into board values (
+	      #id#, #title#, #writer#, #content#,0,sysdate )
+  </insert>
+   <select id="select" parameterClass="int" resultClass="Board">
+   	 select * from board  where id = #id#
+  </select> -->
+  <select id="totalCnt" resultClass="int">
+   	 select nvl(count(*),0) from board
+  </select>
+  <select id="searchCnt" resultClass="int">
+   	 select nvl(count(*),0) from board
+   	 	where title like '%'||#search#||'%'
+  </select>
+   <update id="hitUpdate" parameterClass="int">
+    update board set hit = hit + 1 where id = #id#
+  </update> 
+  <update id="update" parameterClass="Board">
+    update board set title=#title#,writer=#writer#,
+      content=#content#  where id=#id#
+  </update>
+  <delete id="delete" parameterClass="int">
+    delete from board where id=#id#
+  </delete>
+</sqlMap>
